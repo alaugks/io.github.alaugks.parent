@@ -1,0 +1,46 @@
+name: "Maven Central Release"
+run-name: Maven Central Release [${{ github.ref_name }}]
+on:
+  workflow_dispatch:
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Java
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: 'temurin'
+          java-package: 'jdk'
+          java-version: '17'
+          check-latest: true
+          server-id: 'central'
+          server-username-env-var: 'CENTRAL_USERNAME'
+          server-password-env-var: 'CENTRAL_PASSWORD'
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase-env-var: 'MAVEN_GPG_PASSPHRASE'
+          cache: 'maven'
+
+      # Pinned: with Maven 3.10.0 (runner default) Central rejected the bundle with
+      # "Bundle has content that does NOT have a .pom file"; 3.9.12 builds a valid bundle locally
+      - name: Setup Maven 3.9.12
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/maven.tar.gz" https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.12/apache-maven-3.9.12-bin.tar.gz
+          echo "0a1be79f02466533fc1a80abbef8796e4f737c46c6574ede5658b110899942a94db634477dfd3745501c80aef9aac0d4f841d38574373f7e2d24cce89d694f70  $RUNNER_TEMP/maven.tar.gz" | sha512sum -c -
+          tar -xzf "$RUNNER_TEMP/maven.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/apache-maven-3.9.12/bin" >> "$GITHUB_PATH"
+
+      - name: Maven version
+        run: |
+          mvn -v
+
+      - name: Build & Deploy
+        run: |
+          mvn -U -B -Daether.connector.http.preemptiveAuth=true -Dmaven.repository.credentialScope=id clean deploy -P release
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
+          CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
