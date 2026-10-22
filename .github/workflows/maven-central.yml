@@ -1,5 +1,5 @@
-name: "OSSRH Release"
-run-name: OSSRH Release [${{ github.ref_name }}]
+name: "Maven Central Release"
+run-name: Maven Central Release [${{ github.ref_name }}]
 on:
   workflow_dispatch:
 jobs:
@@ -17,7 +17,7 @@ jobs:
           java-package: 'jdk'
           java-version: '17'
           check-latest: true
-          server-id: 'ossrh'
+          server-id: 'central'
           server-username: 'OSSRH_USERNAME'
           server-password: 'OSSRH_PASSWORD'
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
