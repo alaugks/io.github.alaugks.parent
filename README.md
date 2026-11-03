@@ -2,6 +2,8 @@
 
 Shared parent POM for io.github.alaugks projects. Provides plugin versions and the profiles `local`, `release` and `test-coverage`.
 
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.alaugks/parent)
+
 ## Usage
 
 ```xml
