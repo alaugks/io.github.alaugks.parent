@@ -10,7 +10,7 @@ Shared parent POM for io.github.alaugks projects. Provides plugin versions and t
 <parent>
     <groupId>io.github.alaugks</groupId>
     <artifactId>parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <relativePath/>
 </parent>
 ```
